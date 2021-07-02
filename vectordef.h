@@ -1,13 +1,14 @@
 /**
- * $NN identifier name (UPPER)
- * $Nn identifier name (Pascal)
- * $nn identifier name (lower)
- * $T type
+ * $NN IDENTIFIER_NAME (UPPER)
+ * $Nn IdentifierName (Pascal)
+ * $nn identifier_name (lower)
+ * $T C type (int, char *, ...)
  */
 
-#ifndef JLIBS_VECTORDEF_$NN_H
-#define JLIBS_VECTORDEF_$NN_H
+#ifndef DEF_VECTORDEF_$NN_H
+#define DEF_VECTORDEF_$NN_H
 
+#include "shared.h"
 #include <stddef.h>
 
 #if 0
@@ -21,7 +22,6 @@ struct Vector$Nn {
     $T *buf;
     size_t size;
     size_t cap;
-    size_t isize;
 };
 
 struct VectorArgs$Nn {
@@ -29,39 +29,34 @@ struct VectorArgs$Nn {
     void (* ifree)($T *item);
 };
 
-struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args);
-struct Vector$Nn *_vector_$nn_new(struct VectorArgs$Nn args);
-
+DEF_PROTO struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args);         // initialize a stack vector
+DEF_PROTO struct Vector$Nn *_vector_$nn_new(struct VectorArgs$Nn args);         // initialize a heap vector
 #define vector_$nn_init(...) _vector_$nn_init((struct VectorArgs$Nn){cap: 1, ifree: NULL, __VA_ARGS__})
 #define vector_$nn_new(...) _vector_$nn_new((struct VectorArgs$Nn){cap: 1, ifree: NULL, __VA_ARGS__})
-void vector_$nn_deinit(struct Vector$Nn *v);
-void vector_$nn_free(struct Vector$Nn *v);
-
-void vector_$nn_reserve(struct Vector$Nn *v, size_t cap);
-void vector_$nn_push(struct Vector$Nn *v, $T value);
-void vector_$nn_pop(struct Vector$Nn *v);
-$T vector_$nn_get(struct Vector$Nn *v, size_t ndx);
-void vector_$nn_set(struct Vector$Nn *v, size_t ndx, $T value);
-$T *vector_$nn_iter(struct Vector$Nn *v);
-$T *vector_$nn_next(struct Vector$Nn *v, $T *cursor);
+DEF_PROTO void vector_$nn_deinit(struct Vector$Nn *v);                          // deinitialize a stack vector
+DEF_PROTO void vector_$nn_free(struct Vector$Nn *v);                            // delete a heap vector
+DEF_PROTO void vector_$nn_reserve(struct Vector$Nn *v, size_t cap);             // set reserve capacity
+DEF_PROTO void vector_$nn_push(struct Vector$Nn *v, $T value);                  // put a new item at the end
+DEF_PROTO void vector_$nn_pop(struct Vector$Nn *v);                             // remove the item from the end, calling the destructor as necessary
+DEF_PROTO $T vector_$nn_get(struct Vector$Nn *v, size_t ndx);                   // get the item at the index. Does _NO_ bounds checking
+DEF_PROTO void vector_$nn_set(struct Vector$Nn *v, size_t ndx, $T value);       // set the item at the index. Does _NO_ bounds checking
+DEF_PROTO $T *vector_$nn_iter(struct Vector$Nn *v);                             // get an iterator to call next on, or NULL if empty
+DEF_PROTO $T *vector_$nn_next(struct Vector$Nn *v, $T *cursor);                 // return pointer to next item or NULL if done
 
 extern void (* vector_$nn_ifree)($T *item);
 #ifdef DEF_VECTOR_$NN
-void (* vector_$nn_ifree)($T *item) = NULL;
-
 #include <assert.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <memory.h>
 
+void (* vector_$nn_ifree)($T *item) = NULL;
 
 struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args)
 {
     struct Vector$Nn v;
     v.size = 0;
     v.cap = args.cap;
-    v.isize = sizeof($T);
-    v.buf = malloc(v.cap * v.isize);
+    v.buf = malloc(v.cap * sizeof($T));
     assert(v.buf);
 
     if (args.ifree) {
@@ -105,7 +100,7 @@ void vector_$nn_reserve(struct Vector$Nn *v, size_t cap)
 {
     void *tmp;
     assert(v);
-    tmp = realloc(v->buf, v->isize * cap);
+    tmp = realloc(v->buf, sizeof($T) * cap);
     assert(tmp);
     v->buf = tmp;
     v->cap = cap;
@@ -172,6 +167,6 @@ $T *vector_$nn_next(struct Vector$Nn *v, $T *cursor)
     return p;
 }
 
-#endif
+#endif // DEF_VECTOR_$NN
 
-#endif // JLIBS_VECTORDEF_$NN_H
+#endif // DEF_VECTORDEF_$NN_H

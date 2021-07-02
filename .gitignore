@@ -5,3 +5,5 @@
 a.exe
 a.out
 gen.*
+collections.h
+DOCS.md

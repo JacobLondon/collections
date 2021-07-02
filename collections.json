@@ -9,5 +9,10 @@
         {
             "$NN": "STR", "$Nn": "Str", "$nn": "str", "$T": "const char *"
         }
+    ],
+    "listdef.h": [
+        {
+            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int"
+        }
     ]
 }
