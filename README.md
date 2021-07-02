@@ -50,5 +50,5 @@ If a `DEF_<COLLECTION>_<TYPE>` is defined without the JSON definition defining i
   * python36+ will need to be symlinked to `python` to be able to execute the `def.py` to run as `./def.py`. Otherwise, use `python def.py`
 * Any C99+ compiler
 
-## Caveats
+## Additional Notes
 * All `init` or `new` functions use macros to achieve default arguments. Furthermore, these functions don't necessarily all have something to return. They both set a global variable and create an object out of convenience.
