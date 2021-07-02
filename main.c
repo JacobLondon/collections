@@ -1,5 +1,5 @@
-#define USE_VECTOR_STR
-#include "vectorout.h"
+#define DEF_VECTOR_STR
+#include "gen.h"
 #include <stdio.h>
 
 int main(void)

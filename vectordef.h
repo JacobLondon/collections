@@ -11,7 +11,7 @@
 #include <stddef.h>
 
 #if 0
-#define USE_VECTOR_$NN
+#define DEF_VECTOR_$NN
 #ifndef $T
 #define $T int
 #endif
@@ -45,14 +45,15 @@ void vector_$nn_set(struct Vector$Nn *v, size_t ndx, $T value);
 $T *vector_$nn_iter(struct Vector$Nn *v);
 $T *vector_$nn_next(struct Vector$Nn *v, $T *cursor);
 
-#ifdef USE_VECTOR_$NN
+extern void (* vector_$nn_ifree)($T *item);
+#ifdef DEF_VECTOR_$NN
+void (* vector_$nn_ifree)($T *item) = NULL;
 
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <memory.h>
 
-void (* vector_$nn_ifree)($T *item) = NULL;
 
 struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args)
 {
@@ -163,7 +164,7 @@ $T *vector_$nn_next(struct Vector$Nn *v, $T *cursor)
 {
     assert(v);
     assert(cursor);
-    if (cursor - v->buf >= v->size - 1) {
+    if ((size_t)(cursor - v->buf) >= v->size - 1) {
         return NULL;
     }
 
