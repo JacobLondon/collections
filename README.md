@@ -27,7 +27,7 @@ python def.py -f collections.json -o collections.h
 ```
 
 ## Usage
-You can use `def.py` in your own projects. Add this repo as a submodule to your own, and add it to your compiler's include path as a switch: `gcc <YOUR STUFF> -I <PATH_TO_PROJECT>/collections`. Everything can be generated with `make` in this project root directory.
+You can use `def.py` in your own projects. Add this repo as a submodule to your own, and add it to your compiler's include path as a switch: `gcc <YOUR STUFF> -I <PATH_TO_SUBMODULES>` (assuming `collections` is in that folder). Everything can be generated with `make` in this project root directory.
 
 ### Including
 To use any library defined in `collections.json` then this header file may be included in your project. All functions are defined in the `collections.h` file, but only the prototypes are included by default.
