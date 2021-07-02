@@ -1,0 +1,13 @@
+{
+    "vectordef.h": [
+        {
+            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int"
+        },
+        {
+            "$NN": "LONG", "$Nn": "Long", "$nn": "long", "$T": "long"
+        },
+        {
+            "$NN": "STR", "$Nn": "Str", "$nn": "str", "$T": "const char *"
+        }
+    ]
+}

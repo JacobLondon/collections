@@ -1,0 +1,7 @@
+.vscode
+.vs
+.DS_Store
+.tmp.*
+a.exe
+a.out
+gen.*
