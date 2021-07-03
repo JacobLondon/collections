@@ -7,3 +7,5 @@ a.out
 gen.*
 collections.h
 DOCS.md
+*.swp
+

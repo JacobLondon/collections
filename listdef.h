@@ -28,7 +28,7 @@ struct ListArgs$Nn {
 };
 
 DEF_PROTO void _list_$nn_init(struct ListArgs$Nn args);                        // initialize the globals
-#define list_$nn_init(...) _list_$nn_init((struct ListArgs$Nn){ifree: NULL})
+#define list_$nn_init(...) _list_$nn_init((struct ListArgs$Nn){ifree: NULL, __VA_ARGS__})
 DEF_PROTO void list_$nn_free(struct List$Nn *head);                            // head may be NULL, do nothing
 DEF_PROTO struct List$Nn *list_$nn_push_back(struct List$Nn *any, $T value);   // any may be NULL, return the last element
 DEF_PROTO struct List$Nn *list_$nn_push_front(struct List$Nn *head, $T value); // head may be NULL, return the new front element
