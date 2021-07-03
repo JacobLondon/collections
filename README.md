@@ -52,3 +52,9 @@ If a `DEF_<COLLECTION>_<TYPE>` is defined without the JSON definition defining i
 
 ## Additional Notes
 * All `init` or `new` functions use macros to achieve default arguments. Furthermore, these functions don't necessarily all have something to return. They both set a global variable and create an object out of convenience.
+
+# TODO
+* Specify ifree in JSON
+* Vector.get should return a pointer
+* More assertion sanity checks (does container have a usable ptr, ...)
+* Dict delete

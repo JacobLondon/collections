@@ -14,5 +14,18 @@
         {
             "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int"
         }
+    ],
+    "dictdef.h": [
+        {
+            "$TT": "STR", "$Tt": "Str", "$tt": "str", "$T": "const char *",
+            "$VV": "INT", "$Vv": "Int", "$vv": "int", "$V": "int",
+            "$REFKEY": "(a)",
+            "$FREEKEY": "NULL",
+            "$FREEVALUE": "NULL",
+            "$SIZEOFKEY": "strlen((const char *)a)",
+            "$CMPKEY": "strcmp(a, b)",
+            "$ZEROKEY": "(!a)",
+            "$ZEROVALUE": "(!a)"
+        }
     ]
 }

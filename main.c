@@ -1,11 +1,12 @@
-#define DEF_VECTOR_STR
-#define DEF_LIST_INT
+//#define DEF_VECTOR_STR
+//#define DEF_LIST_INT
+#define DEF_DICT_STR_INT
 #include "collections.h"
 #include <stdio.h>
 
 int main(void)
 {
-    {
+    /* {
         list_int_init();
         struct ListInt *p, *r;
         struct ListInt *n = list_int_push_back(NULL, 10);
@@ -32,9 +33,9 @@ int main(void)
         printf("%d\n", *list_int_getv(p, 2));
 
         list_int_free(n);
-    }
+    } */
 
-    {
+    /* {
         struct VectorStr v = vector_str_init();
 
         vector_str_push(&v, "Hello");
@@ -47,6 +48,29 @@ int main(void)
         {
             printf("%s\n", *s);
         }
+    } */
+
+    {
+        struct DictStrInt *d = dict_str_int_new();
+        dict_str_int_set(d, "a", 10);
+        dict_str_int_set(d, "b", 20);
+        dict_str_int_set(d, "c", 30);
+        dict_str_int_set(d, "d", 40);
+        dict_str_int_set(d, "a1", 15);
+        dict_str_int_set(d, "b2", 25);
+        dict_str_int_set(d, "c3", 35);
+        dict_str_int_set(d, "d4", 45);
+
+        struct DictPairStrInt pair;
+        for (pair = dict_str_int_iter(d);
+             pair.key;
+             pair = dict_str_int_next(d, pair))
+        {
+            printf("%s: %d\n", *pair.key, *pair.value);
+        }
+
+        printf("%p\n", dict_str_int_get(d, "a1"));
+        printf("%p\n", dict_str_int_get(d, "12315"));
     }
 
     return 0;

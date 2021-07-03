@@ -6,6 +6,7 @@ DOCLINE = "DEF_PROTO"
 files = {
     'listdef.h': [],
     'vectordef.h': [],
+    'dictdef.h': [],
 }
 
 bufout = ["# Collections Docs"]
