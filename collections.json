@@ -1,18 +1,26 @@
 {
     "vectordef.h": [
         {
-            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int"
+            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int",
+            "$ZEROVALUE": "(!a)",
+            "$FREEVALUE": "NULL"
         },
         {
-            "$NN": "LONG", "$Nn": "Long", "$nn": "long", "$T": "long"
+            "$NN": "LONG", "$Nn": "Long", "$nn": "long", "$T": "long",
+            "$ZEROVALUE": "(!a)",
+            "$FREEVALUE": "NULL"
         },
         {
-            "$NN": "STR", "$Nn": "Str", "$nn": "str", "$T": "const char *"
+            "$NN": "STR", "$Nn": "Str", "$nn": "str", "$T": "const char *",
+            "$ZEROVALUE": "(!a)",
+            "$FREEVALUE": "NULL"
         }
     ],
     "listdef.h": [
         {
-            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int"
+            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int",
+            "$ZEROVALUE": "(!a)",
+            "$FREEVALUE": "NULL"
         }
     ],
     "dictdef.h": [

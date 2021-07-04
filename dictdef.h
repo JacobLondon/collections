@@ -92,7 +92,7 @@ static size_t dict_$tt_$vv_index(struct Dict$Tt$Vv *d, $T key)
         ndx = dict_$tt_$vv_hash(key, bias, d->cap);
         bias += 7;
         // valid key and keys not equal
-    } while (d->keys[ndx] && (DEF_DICT_$TT_$VV_CMPKEY(d->keys[ndx], key) != 0));
+    } while (!DEF_DICT_$TT_$VV_ZEROKEY(d->keys[ndx]) && (DEF_DICT_$TT_$VV_CMPKEY(d->keys[ndx], key) != 0));
     return ndx;
 }
 
@@ -150,14 +150,6 @@ void dict_$tt_$vv_deinit(struct Dict$Tt$Vv *d)
     free(d->keys);
     free(d->values);
     memset(d, 0, sizeof(*d));
-}
-
-void dict_$tt_$vv_delete(struct Dict$Tt$Vv *d, $T key)
-{
-    $V *v = dict_$tt_$vv_get(d, key);
-    if (v) {
-        DEF_DICT_$TT_$VV_FREEKEY()
-    }
 }
 
 void dict_$tt_$vv_reserve(struct Dict$Tt$Vv *d, size_t cap)

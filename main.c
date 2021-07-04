@@ -1,19 +1,19 @@
-//#define DEF_VECTOR_STR
-//#define DEF_LIST_INT
+#define DEF_VECTOR_STR
+#define DEF_LIST_INT
 #define DEF_DICT_STR_INT
 #include "collections.h"
 #include <stdio.h>
 
 int main(void)
 {
-    /* {
-        list_int_init();
+    {
+        /*list_int_init();
         struct ListInt *p, *r;
         struct ListInt *n = list_int_push_back(NULL, 10);
         r = p = list_int_push_back(n, 20);
         p = list_int_push_back(p, 30);
         n = list_int_push_front(n, 0);
-        list_int_delete(n, r);
+        n = list_int_delete(n, r);
         list_int_insert(p, 500);
         list_int_insert(p, 600);
 
@@ -32,8 +32,12 @@ int main(void)
         printf("%p\n", list_int_set(p, 2, 999));
         printf("%d\n", *list_int_getv(p, 2));
 
-        list_int_free(n);
-    } */
+        list_int_free(n);*/
+        struct ListInt *head = list_int_push_back(NULL, 10);
+        struct ListInt *p = list_int_gete(head);
+        head = list_int_delete(head, p);
+        printf("Head %p\n", head);
+    }
 
     /* {
         struct VectorStr v = vector_str_init();

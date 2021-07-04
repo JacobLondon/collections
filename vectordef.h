@@ -18,6 +18,8 @@
 #endif
 #endif
 
+#define DEF_VECTOR_$NN_ZEROVALUE(a) $ZEROVALUE
+
 struct Vector$Nn {
     $T *buf;
     size_t size;
@@ -26,7 +28,7 @@ struct Vector$Nn {
 
 struct VectorArgs$Nn {
     size_t cap;
-    void (* ifree)($T *item);
+    void (* ifree)($T item);
 };
 
 DEF_PROTO struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args);         // initialize a stack vector
@@ -38,18 +40,18 @@ DEF_PROTO void vector_$nn_free(struct Vector$Nn *v);                            
 DEF_PROTO void vector_$nn_reserve(struct Vector$Nn *v, size_t cap);             // set reserve capacity
 DEF_PROTO void vector_$nn_push(struct Vector$Nn *v, $T value);                  // put a new item at the end
 DEF_PROTO void vector_$nn_pop(struct Vector$Nn *v);                             // remove the item from the end, calling the destructor as necessary
-DEF_PROTO $T vector_$nn_get(struct Vector$Nn *v, size_t ndx);                   // get the item at the index. Does _NO_ bounds checking
+DEF_PROTO $T *vector_$nn_get(struct Vector$Nn *v, size_t ndx);                  // get the item at the index. Does _NO_ bounds checking
 DEF_PROTO void vector_$nn_set(struct Vector$Nn *v, size_t ndx, $T value);       // set the item at the index. Does _NO_ bounds checking
 DEF_PROTO $T *vector_$nn_iter(struct Vector$Nn *v);                             // get an iterator to call next on, or NULL if empty
 DEF_PROTO $T *vector_$nn_next(struct Vector$Nn *v, $T *cursor);                 // return pointer to next item or NULL if done
 
-extern void (* vector_$nn_ifree)($T *item);
+extern void (* vector_$nn_ifree)($T item);
 #ifdef DEF_VECTOR_$NN
 #include <assert.h>
 #include <stdlib.h>
 #include <memory.h>
 
-void (* vector_$nn_ifree)($T *item) = NULL;
+void (* vector_$nn_ifree)($T item) = NULL;
 
 struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args)
 {
@@ -76,22 +78,24 @@ struct Vector$Nn *_vector_$nn_new(struct VectorArgs$Nn args)
 
 void vector_$nn_deinit(struct Vector$Nn *v)
 {
+    size_t i;
     assert(v);
-    if (v->buf) {
-        if (vector_$nn_ifree) {
-            size_t i;
-            for (i = 0; i < v->size; i++) {
-                vector_$nn_ifree(&v->buf[i]);
+    assert(v->buf);
+    if (vector_$nn_ifree) {
+        for (i = 0; i < v->size; i++) {
+            if (!DEF_VECTOR_$NN_ZEROVALUE(v->buf[i])) {
+                vector_$nn_ifree(v->buf[i]);
             }
         }
-        free(v->buf);
     }
+    free(v->buf);
     memset(v, 0, sizeof(*v));
 }
 
 void vector_$nn_free(struct Vector$Nn *v)
 {
     assert(v);
+    assert(v->buf);
     vector_$nn_deinit(v);
     free(v);
 }
@@ -100,6 +104,7 @@ void vector_$nn_reserve(struct Vector$Nn *v, size_t cap)
 {
     void *tmp;
     assert(v);
+    assert(v->buf);
     tmp = realloc(v->buf, sizeof($T) * cap);
     assert(tmp);
     v->buf = tmp;
@@ -112,6 +117,7 @@ void vector_$nn_reserve(struct Vector$Nn *v, size_t cap)
 void vector_$nn_push(struct Vector$Nn *v, $T value)
 {
     assert(v);
+    assert(v->buf);
     if (v->size == v->cap) {
         vector_$nn_reserve(v, v->cap * 2);
     }
@@ -122,48 +128,57 @@ void vector_$nn_push(struct Vector$Nn *v, $T value)
 void vector_$nn_pop(struct Vector$Nn *v)
 {
     assert(v);
+    assert(v->buf);
     if (v->size == 0) {
         return;
     }
 
-    if (vector_$nn_ifree) {
-        vector_$nn_ifree(&v->buf[v->size - 1]);
+    if (vector_$nn_ifree && !DEF_VECTOR_$NN_ZEROVALUE(v->buf[v->size - 1])) {
+        vector_$nn_ifree(v->buf[v->size - 1]);
     }
     v->size--;
 }
 
-$T vector_$nn_get(struct Vector$Nn *v, size_t ndx)
+$T *vector_$nn_get(struct Vector$Nn *v, size_t ndx)
 {
     assert(v);
-    return v->buf[ndx];
+    assert(v->buf);
+    assert(ndx < v->size);
+    return &v->buf[ndx];
 }
 
 void vector_$nn_set(struct Vector$Nn *v, size_t ndx, $T value)
 {
     assert(v);
+    assert(v->buf);
+    assert(ndx < v->size);
     v->buf[ndx] = value;
 }
 
 $T *vector_$nn_iter(struct Vector$Nn *v)
 {
+    $T *p;
     assert(v);
+    assert(v->buf);
     if (v->size == 0) {
         return NULL;
     }
 
-    $T *p = &v->buf[0];
+    p = &v->buf[0];
     return (void *)p;
 }
 
 $T *vector_$nn_next(struct Vector$Nn *v, $T *cursor)
 {
+    $T *p;
     assert(v);
+    assert(v->buf);
     assert(cursor);
     if ((size_t)(cursor - v->buf) >= v->size - 1) {
         return NULL;
     }
 
-    $T *p = &cursor[1];
+    p = &cursor[1];
     return p;
 }
 

@@ -39,6 +39,9 @@ In _one_ location in your project, above the `#include <collections/collections.
 #include <collections/collections.h>
 // - snip -
 ```
+
+To include user-defined functions and use them in the JSON definition, simply `#include` the relevant header file ABOVE the `#include <collections/collections.h>` where the type is defined with,for example `DEF_LIST_INT`
+
 ### Docs
 Run `make docs` then see `DOCS.md`.
 
@@ -55,6 +58,4 @@ If a `DEF_<COLLECTION>_<TYPE>` is defined without the JSON definition defining i
 
 # TODO
 * Specify ifree in JSON
-* Vector.get should return a pointer
-* More assertion sanity checks (does container have a usable ptr, ...)
 * Dict delete
