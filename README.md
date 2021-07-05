@@ -42,6 +42,7 @@ Each key in a file definition is literal text to be replaced with it's value cou
 This definition will go into `vectordef.h` and replace all instances of `$NN` with `INT`, `$Nn` with `Int`, and so forth. This allows the definition of generic code on a per-file basis. After going through `vectordef.h` the `def.py` tool will go into `listdef.h` then `dictdef.h` and perform the same process. This can be repeated for as many pattern replacements and files as wanted.
 
 Key Definitions:
+```
 * $UU..........UPPER case version of a definition name
 * $Uu..........Pascal case version of a definition name
 * $uu..........lower case version of a definition name
@@ -53,6 +54,7 @@ Key Definitions:
 * $SIZEOFKEY...Given `a` is the C type, return the byte count of `a`
 * $CMPKEY......Given `a` and `b` are the same C type, return -1, 0, or 1 for equality as-per strcmp (0 means equal)
 * $ZEROKEY.....See $ZEROVALUE
+```
 
 Example:
 ```bash
