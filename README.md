@@ -93,5 +93,4 @@ If a `DEF_<COLLECTION>_<TYPE>` is defined without the JSON definition defining i
 * All `init` or `new` functions use macros to achieve default arguments. Furthermore, these functions don't necessarily all have something to return. They both set a global variable and create an object out of convenience.
 
 # TODO
-* Specify ifree in JSON
 * Dict delete
