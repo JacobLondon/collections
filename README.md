@@ -4,30 +4,64 @@ Currently contains vector and list. The code is generic as it uses a text replac
 {
     "vectordef.h": [
         {
-            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int"
+            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int",
+            "$ZEROVALUE": "(!a)",
+            "$FREEVALUE": "NULL"
         },
         {
-            "$NN": "STR", "$Nn": "Str", "$nn": "str", "$T": "const char *"
+            "$NN": "STR", "$Nn": "Str", "$nn": "str", "$T": "const char *",
+            "$ZEROVALUE": "(!a)",
+            "$FREEVALUE": "NULL"
         }
     ],
     "listdef.h": [
         {
-            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int"
+            "$NN": "INT", "$Nn": "Int", "$nn": "int", "$T": "int",
+            "$ZEROVALUE": "(!a)",
+            "$FREEVALUE": "NULL"
+        }
+    ],
+    "dictdef.h": [
+        {
+            "$TT": "STR", "$Tt": "Str", "$tt": "str", "$T": "const char *",
+            "$VV": "INT", "$Vv": "Int", "$vv": "int", "$V": "int",
+            "$REFKEY": "(a)",
+            "$FREEKEY": "NULL",
+            "$FREEVALUE": "NULL",
+            "$SIZEOFKEY": "strlen((const char *)a)",
+            "$CMPKEY": "strcmp(a, b)",
+            "$ZEROKEY": "(!a)",
+            "$ZEROVALUE": "(!a)"
         }
     ]
 }
 ```
 
-This definition will go into `vectordef.h` and replace all instances of `$NN` with `INT`, `$Nn` with `Int`, and so forth. This allows the definition of generic code on a per-file basis. After going through `vectordef.h` the `def.py` tool will go into `listdef.h` and perform the same process. This can be repeated for as many pattern replacements and files as wanted. The above format was chosen to explicitly define the name of code generated (NN/Nn/nn) and the type associated with it.
+Each key in a file definition is literal text to be replaced with it's value counterpart in the file noted.
+
+This definition will go into `vectordef.h` and replace all instances of `$NN` with `INT`, `$Nn` with `Int`, and so forth. This allows the definition of generic code on a per-file basis. After going through `vectordef.h` the `def.py` tool will go into `listdef.h` then `dictdef.h` and perform the same process. This can be repeated for as many pattern replacements and files as wanted.
+
+Key Definitions:
+* $UU..........UPPER case version of a definition name
+* $Uu..........Pascal case version of a definition name
+* $uu..........lower case version of a definition name
+* $T...........The corresponding C type to the name
+* $ZEROVALUE...Given `a` is the C type, return true if `a` is the zero-value of its type
+* $FREEVALUE...Given `a` is the C type, specify a `free` function or `NULL`
+* $REFKEY......Given `a` is the C type, get the address of the value. ie. `char *` :: `(a)`, `int` :: `(&a)`, ...
+* $FREEKEY.....See $FREEVALUE
+* $SIZEOFKEY...Given `a` is the C type, return the byte count of `a`
+* $CMPKEY......Given `a` and `b` are the same C type, return -1, 0, or 1 for equality as-per strcmp (0 means equal)
+* $ZEROKEY.....See $ZEROVALUE
 
 Example:
 ```bash
-# Generate collections.h based on the JSON definition
+# Generate collections.h based on the JSON definition, make sure python is python3.6+
 python def.py -f collections.json -o collections.h
 ```
 
 ## Usage
-You can use `def.py` in your own projects. Add this repo as a submodule to your own, and add it to your compiler's include path as a switch: `gcc <YOUR STUFF> -I <PATH_TO_SUBMODULES>` (assuming `collections` is in that folder). Everything can be generated with `make` in this project root directory.
+You can use `def.py` in your own projects. Add this repo as a submodule to your own (`git add submodule github.com/JacobLondon/collections`), and add it to your compiler's include path as a switch: `gcc <YOUR STUFF> -I <PATH_TO_SUBMODULES>` (assuming `collections` is in that folder). Everything can be generated with `make` in this project root directory. If you've added this project as a submodule to your own git repo, make sure you clone your project with `--recurse-submodules` as a switch, and run `git submodule update --recursive --remote` to get the latest push.
 
 ### Including
 To use any library defined in `collections.json` then this header file may be included in your project. All functions are defined in the `collections.h` file, but only the prototypes are included by default.
