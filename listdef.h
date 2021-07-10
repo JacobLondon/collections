@@ -38,6 +38,8 @@ DEF_PROTO struct List$Nn *list_$nn_set(struct List$Nn *any, size_t ndx, $T value
 DEF_PROTO $T *list_$nn_iter(struct List$Nn *any);                              // any may be NULL, will return NULL. Can call next on
 DEF_PROTO $T *list_$nn_next(struct List$Nn *any, $T *cursor);                  // get the next value or NULL
 
+#endif // DEF_LISTDEF_$NN_H
+
 #ifdef DEF_LIST_$NN
 #include <assert.h>
 #include <stdlib.h>
@@ -185,5 +187,3 @@ $T *list_$nn_next(struct List$Nn *any, $T *cursor)
 }
 
 #endif // DEF_LIST_$NN
-
-#endif // DEF_LISTDEF_$NN_H

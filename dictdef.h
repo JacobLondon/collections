@@ -3,20 +3,20 @@
  * $TT IDENTIFIER_NAME (UPPER)
  * $Tt IdentifierName (Pascal)
  * $tt identifier_name (lower)
- * $T C type (int, char *, ...)
+ * $K C type (int, char *, ...)
  * 
  * Values
  * $VV IDENTIFIER_NAME (UPPER)
  * $Vv IdentifierName (Pascal)
  * $vv identifier_name (lower)
- * $V C type (int, char *, ...)
+ * $U C type (int, char *, ...)
  * 
  * Functions
- * $REFKEY    $T*($T), if T is 'char *' then return $T
- * $FREEKEY   void($T)
- * $FREEVALUE void($V)
- * $SIZEOFKEY size_t($T*)
- * $CMPKEY    int($T, $T)
+ * $REFKEY    $K*($K), if T is 'char *' then return $K
+ * $FREEKEY   void($K)
+ * $FREEVALUE void($U)
+ * $SIZEOFKEY size_t($K*)
+ * $CMPKEY    int($K, $K)
  * 
  * If a value in the dictionary contains the 'zero value' for
  * its type, then it is considered to not contain anything.
@@ -29,8 +29,8 @@
 #if 0
 #define DEF_DICT_$TT_$VV
 #ifdef DEF_DICT_$TT_$VV
-#define $T int
-#define $V int
+#define $K int
+#define $U int
 #endif
 #endif
 
@@ -43,8 +43,8 @@
 #define DEF_DICT_$TT_$VV_ZEROVALUE(a) $ZEROVALUE
 
 struct Dict$Tt$Vv {
-    $T *keys;
-    $V *values;
+    $K *keys;
+    $U *values;
     size_t size;
     size_t cap;
 };
@@ -54,11 +54,11 @@ struct DictArgs$Tt$Vv {
 };
 
 struct DictPair$Tt$Vv {
-    $T *key;
-    $V *value;
+    $K *key;
+    $U *value;
 };
 
-typedef size_t (* Dict$Tt$VvHashFunc)($T key, size_t bias, size_t max);
+typedef size_t (* Dict$Tt$VvHashFunc)($K key, size_t bias, size_t max);
 
 DEF_PROTO struct Dict$Tt$Vv _dict_$tt_$vv_init(struct DictArgs$Tt$Vv args);     // create a stack dict
 #define dict_$tt_$vv_init(...) _dict_$tt_$vv_init((struct DictArgs$Tt$Vv){cap: 6, __VA_ARGS__})
@@ -67,23 +67,25 @@ DEF_PROTO struct Dict$Tt$Vv *_dict_$tt_$vv_new(struct DictArgs$Tt$Vv args);     
 DEF_PROTO void dict_$tt_$vv_deinit(struct Dict$Tt$Vv *d);                       // clean up a stack dict
 DEF_PROTO void dict_$tt_$vv_free(struct Dict$Tt$Vv *d);                         // free a heap dict
 DEF_PROTO void dict_$tt_$vv_reserve(struct Dict$Tt$Vv *d, size_t cap);          // cap must be larger, can check by '.cap == ?'
-DEF_PROTO void dict_$tt_$vv_set(struct Dict$Tt$Vv *d, $T key, $V value);        // set the value in the dict, will replace existing values
-DEF_PROTO $V *dict_$tt_$vv_get(struct Dict$Tt$Vv *d, $T key);                   // NULL if not present, else the value
+DEF_PROTO void dict_$tt_$vv_set(struct Dict$Tt$Vv *d, $K key, $U value);        // set the value in the dict, will replace existing values
+DEF_PROTO $U *dict_$tt_$vv_get(struct Dict$Tt$Vv *d, $K key);                   // NULL if not present, else the value
 DEF_PROTO struct DictPair$Tt$Vv dict_$tt_$vv_iter(struct Dict$Tt$Vv *d);        // get a pair iterator, has key/value pointer
 DEF_PROTO struct DictPair$Tt$Vv dict_$tt_$vv_next(struct Dict$Tt$Vv *d, struct DictPair$Tt$Vv cursor); // get next from iterator
 DEF_PROTO void dict_$tt_$vv_sethash(Dict$Tt$VvHashFunc hash);                   // set the hash function
+
+#endif // DEF_DICTDEF_$TT_$VV_H
 
 #ifdef DEF_DICT_$TT_$VV
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
-static size_t dict_$tt_$vv_index(struct Dict$Tt$Vv *d, $T key);
-static size_t dict_$tt_$vv_hash_default($T key, size_t bias, size_t max);
+static size_t dict_$tt_$vv_index(struct Dict$Tt$Vv *d, $K key);
+static size_t dict_$tt_$vv_hash_default($K key, size_t bias, size_t max);
 
 static Dict$Tt$VvHashFunc dict_$tt_$vv_hash = dict_$tt_$vv_hash_default;
 
-static size_t dict_$tt_$vv_index(struct Dict$Tt$Vv *d, $T key)
+static size_t dict_$tt_$vv_index(struct Dict$Tt$Vv *d, $K key)
 {
     assert(d);
     size_t ndx;
@@ -96,7 +98,7 @@ static size_t dict_$tt_$vv_index(struct Dict$Tt$Vv *d, $T key)
     return ndx;
 }
 
-static size_t dict_$tt_$vv_hash_default($T key, size_t bias, size_t max)
+static size_t dict_$tt_$vv_hash_default($K key, size_t bias, size_t max)
 {
     // FNV1A
     unsigned char *buf = (unsigned char *)DEF_DICT_$TT_$VV_REFKEY(key);
@@ -145,17 +147,26 @@ void dict_$tt_$vv_deinit(struct Dict$Tt$Vv *d)
             DEF_DICT_$TT_$VV_FREEVALUE(d->values[i]);
         }
     }
-    memset(d->keys, 0, sizeof($T) * d->cap);
-    memset(d->values, 0, sizeof($V) * d->cap);
+    memset(d->keys, 0, sizeof($K) * d->cap);
+    memset(d->values, 0, sizeof($U) * d->cap);
     free(d->keys);
     free(d->values);
     memset(d, 0, sizeof(*d));
 }
 
+void dict_$tt_$vv_free(struct Dict$Tt$Vv *d)
+{
+    assert(d);
+    assert(d->keys);
+    assert(d->values);
+    dict_$tt_$vv_deinit(d);
+    free(d);
+}
+
 void dict_$tt_$vv_reserve(struct Dict$Tt$Vv *d, size_t cap)
 {
-    $T *oldkeys;
-    $V *oldvalues;
+    $K *oldkeys;
+    $U *oldvalues;
     size_t oldcap;
     size_t i;
     size_t ndx;
@@ -189,7 +200,7 @@ void dict_$tt_$vv_reserve(struct Dict$Tt$Vv *d, size_t cap)
     free(oldvalues);
 }
 
-void dict_$tt_$vv_set(struct Dict$Tt$Vv *d, $T key, $V value)
+void dict_$tt_$vv_set(struct Dict$Tt$Vv *d, $K key, $U value)
 {
     size_t ndx;
     assert(d);
@@ -218,7 +229,7 @@ void dict_$tt_$vv_set(struct Dict$Tt$Vv *d, $T key, $V value)
     }
 }
 
-$V *dict_$tt_$vv_get(struct Dict$Tt$Vv *d, $T key)
+$U *dict_$tt_$vv_get(struct Dict$Tt$Vv *d, $K key)
 {
     size_t ndx;
     assert(d);
@@ -278,5 +289,3 @@ void dict_$tt_$vv_sethash(Dict$Tt$VvHashFunc hash)
 }
 
 #endif // DEF_DICT_$TT_$VV
-
-#endif // DEF_DICTDEF_$TT_$VV_H

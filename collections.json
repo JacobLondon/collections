@@ -25,8 +25,8 @@
     ],
     "dictdef.h": [
         {
-            "$TT": "STR", "$Tt": "Str", "$tt": "str", "$T": "const char *",
-            "$VV": "INT", "$Vv": "Int", "$vv": "int", "$V": "int",
+            "$TT": "STR", "$Tt": "Str", "$tt": "str", "$K": "const char *",
+            "$VV": "INT", "$Vv": "Int", "$vv": "int", "$U": "int",
             "$REFKEY": "(a)",
             "$FREEKEY": "NULL",
             "$FREEVALUE": "NULL",

@@ -19,6 +19,7 @@
 #endif
 
 #define DEF_VECTOR_$NN_ZEROVALUE(a) $ZEROVALUE
+#define DEF_VECTOR_$NN_FREEVALUE(a) $FREEVALUE
 
 struct Vector$Nn {
     $T *buf;
@@ -28,13 +29,12 @@ struct Vector$Nn {
 
 struct VectorArgs$Nn {
     size_t cap;
-    void (* ifree)($T item);
 };
 
 DEF_PROTO struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args);         // initialize a stack vector
 DEF_PROTO struct Vector$Nn *_vector_$nn_new(struct VectorArgs$Nn args);         // initialize a heap vector
-#define vector_$nn_init(...) _vector_$nn_init((struct VectorArgs$Nn){cap: 1, ifree: NULL, __VA_ARGS__})
-#define vector_$nn_new(...) _vector_$nn_new((struct VectorArgs$Nn){cap: 1, ifree: NULL, __VA_ARGS__})
+#define vector_$nn_init(...) _vector_$nn_init((struct VectorArgs$Nn){cap: 1, __VA_ARGS__})
+#define vector_$nn_new(...) _vector_$nn_new((struct VectorArgs$Nn){cap: 1, __VA_ARGS__})
 DEF_PROTO void vector_$nn_deinit(struct Vector$Nn *v);                          // deinitialize a stack vector
 DEF_PROTO void vector_$nn_free(struct Vector$Nn *v);                            // delete a heap vector
 DEF_PROTO void vector_$nn_reserve(struct Vector$Nn *v, size_t cap);             // set reserve capacity
@@ -45,13 +45,12 @@ DEF_PROTO void vector_$nn_set(struct Vector$Nn *v, size_t ndx, $T value);       
 DEF_PROTO $T *vector_$nn_iter(struct Vector$Nn *v);                             // get an iterator to call next on, or NULL if empty
 DEF_PROTO $T *vector_$nn_next(struct Vector$Nn *v, $T *cursor);                 // return pointer to next item or NULL if done
 
-extern void (* vector_$nn_ifree)($T item);
+#endif // DEF_VECTORDEF_$NN_H
+
 #ifdef DEF_VECTOR_$NN
 #include <assert.h>
 #include <stdlib.h>
 #include <memory.h>
-
-void (* vector_$nn_ifree)($T item) = NULL;
 
 struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args)
 {
@@ -61,9 +60,6 @@ struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args)
     v.buf = malloc(v.cap * sizeof($T));
     assert(v.buf);
 
-    if (args.ifree) {
-        vector_$nn_ifree = args.ifree;
-    }
     return v;
 }
 
@@ -81,11 +77,9 @@ void vector_$nn_deinit(struct Vector$Nn *v)
     size_t i;
     assert(v);
     assert(v->buf);
-    if (vector_$nn_ifree) {
-        for (i = 0; i < v->size; i++) {
-            if (!DEF_VECTOR_$NN_ZEROVALUE(v->buf[i])) {
-                vector_$nn_ifree(v->buf[i]);
-            }
+    for (i = 0; i < v->size; i++) {
+        if (!DEF_VECTOR_$NN_ZEROVALUE(v->buf[i])) {
+            DEF_VECTOR_$NN_FREEVALUE(v->buf[i]);
         }
     }
     free(v->buf);
@@ -133,8 +127,8 @@ void vector_$nn_pop(struct Vector$Nn *v)
         return;
     }
 
-    if (vector_$nn_ifree && !DEF_VECTOR_$NN_ZEROVALUE(v->buf[v->size - 1])) {
-        vector_$nn_ifree(v->buf[v->size - 1]);
+    if (!DEF_VECTOR_$NN_ZEROVALUE(v->buf[v->size - 1])) {
+        DEF_VECTOR_$NN_FREEVALUE(v->buf[v->size - 1]);
     }
     v->size--;
 }
@@ -183,5 +177,3 @@ $T *vector_$nn_next(struct Vector$Nn *v, $T *cursor)
 }
 
 #endif // DEF_VECTOR_$NN
-
-#endif // DEF_VECTORDEF_$NN_H

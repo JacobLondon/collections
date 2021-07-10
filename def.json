@@ -1,0 +1,42 @@
+{
+    "dictdef.h": [
+        {
+            "$TT": "STR", "$Tt": "Str", "$tt": "str", "$K": "char *",
+            "$VV": "STR", "$Vv": "Str", "$vv": "str", "$U": "char *",
+            "$REFKEY": "(a)",
+            "$FREEKEY": "free(a)",
+            "$FREEVALUE": "free(a)",
+            "$SIZEOFKEY": "strlen((const char *)a)",
+            "$CMPKEY": "strcmp(a, b)",
+            "$ZEROKEY": "(!a)",
+            "$ZEROVALUE": "(!a)"
+        },
+        {
+            "$TT": "STR",
+            "$Tt": "Str",
+            "$tt": "str",
+            "$K": "char *",
+            "$VV": "VECTOR_DICT_STR_STR",
+            "$Vv": "VectorDictStrStr",
+            "$vv": "vector_dict_str_str",
+            "$U": "struct VectorDictStrStr *",
+            "$REFKEY": "(a)",
+            "$FREEKEY": "free(a)",
+            "$FREEVALUE": "vector_dict_str_str_free(a)",
+            "$SIZEOFKEY": "strlen((const char *)a)",
+            "$CMPKEY": "strcmp(a, b)",
+            "$ZEROKEY": "(!a)",
+            "$ZEROVALUE": "(!a)"
+        }
+    ],
+    "vectordef.h": [
+        {
+            "$NN": "DICT_STR_STR",
+            "$Nn": "DictStrStr",
+            "$nn": "dict_str_str",
+            "$T": "struct DictStrStr *",
+            "$ZEROVALUE": "(!a)",
+            "$FREEVALUE": "dict_str_str_free(a)"
+        }
+    ]
+}

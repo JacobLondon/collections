@@ -8,7 +8,11 @@ FILES=main.c
 
 all: $(TARGET)
 
-.PHONY: clean
+.PHONY: $(TARGET) clean
+
+bootstrap:
+	python def.py -f def.json -o def.h
+	$(CC) -o a.out def.c $(CFLAGS)
 
 generator:
 	python def.py -f collections.json -o collections.h

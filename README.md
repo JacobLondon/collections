@@ -91,6 +91,8 @@ If a `DEF_<COLLECTION>_<TYPE>` is defined without the JSON definition defining i
 
 ## Additional Notes
 * All `init` or `new` functions use macros to achieve default arguments. Furthermore, these functions don't necessarily all have something to return. They both set a global variable and create an object out of convenience.
+* It is up to the user to ensure no naming conflicts exist within a definition
+  * For example, `{"$TT": "STR", "$T", "char *"}` causes a possible conflict, as the ordering of dictionaries is not necessarily consistent, the second `$T` might be evaluated before `$TT`, leaving a bunch of `char *T` sitting around the code.
 
 # TODO
 * Dict delete
