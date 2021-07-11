@@ -101,12 +101,11 @@ int main(int argc, char *argv[])
             {
                 if (streplace(&deftextcopy, *kv.key, *kv.value) != 0) {
                     fprintf(stderr, "Total failure to replace in %s\n", *t.key);
-                    goto skip;
+                    return 1;
                 }
             }
 
             (void)fwrite(deftextcopy, 1, strlen(deftextcopy), out);
-        skip:
             free(deftextcopy);
         }
         free(deftext);
