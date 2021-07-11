@@ -8,4 +8,4 @@ gen.*
 collections.h
 DOCS.md
 *.swp
-def.h
+def

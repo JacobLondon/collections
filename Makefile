@@ -11,17 +11,20 @@ all: $(TARGET)
 .PHONY: $(TARGET) clean
 
 bootstrap:
-	python def.py -f def.json -o def.h
-	$(CC) -o a.out def.c $(CFLAGS)
+	$(CC) -o def def.c $(CFLAGS) -O2
+bootstrap-debug:
+	$(CC) -o def def.c $(CFLAGS) -ggdb
 
-generator:
-	python def.py -f collections.json -o collections.h
+generator: bootstrap
+	./def -f collections.json -o collections.h
 
 $(TARGET): generator
-	$(CC) -o $@ $(FILES) $(CFLAGS)
+	$(CC) -o $@ $(FILES) $(CFLAGS) -O2
+debug: generator
+	$(CC) -o $@ $(FILES) $(CFLAGS) -ggdb
 
 clean:
-	rm -f a.out a.exe gen.* collections.h
+	rm -f a.out a.exe gen.* collections.h def
 
 docs:
 	python docs.py

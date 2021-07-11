@@ -25,6 +25,7 @@
 #define DEF_DICTDEF_$TT_$VV_H
 
 #include "shared.h"
+#include <stddef.h>
 
 #if 0
 #define DEF_DICT_$TT_$VV

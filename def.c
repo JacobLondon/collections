@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "jsmn.h"
 // generated, make sure protos are above, defs are below
 #include "def.h"
@@ -29,15 +30,16 @@ struct Json {
 };
 
 static int json_open(struct Json *json, const char *filename);
+static void json_close(struct Json *json);
 static int json_dump(struct Json *json, struct DictStrVectorDictStrStr *out);
 static int json_dump_file(struct Json *json, int i, struct VectorDictStrStr *out);
 static int json_dump_file_dict(struct Json *json, int i, struct DictStrStr *out);
 static void json_abort(const char *text, const jsmntok_t *t);
 static int get_options(int argc, char *argv[], struct Options *opts);
-//static int arg_check(int argc, char *argv[], const char *da, const char *ddarg);
+static int arg_check(int argc, char *argv[], const char *da, const char *ddarg);
 static char *arg_get(int argc, char *argv[], const char *da, const char *ddarg);
 char *file_read(const char *fname, size_t *size);
-char *strndup(const char *str, size_t n);
+int streplace(char **s, const char *old, const char *new);
 
 int main(int argc, char *argv[])
 {
@@ -53,11 +55,66 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    FILE *out = fopen(opts.ofile, "w");
+    if (!out) {
+        fprintf(stderr, "Could not open %s\n", opts.ofile);
+        return 1;
+    }
+
     dict = dict_str_vector_dict_str_str_init();
     if (json_dump(&json, &dict) != 0) {
         return 1;
     }
 
+    struct DictPairStrVectorDictStrStr t;
+    struct DictStrStr **d;
+    struct DictPairStrStr kv;
+    char *deftext;
+    char *deftextcopy;
+
+    // for each filename
+    for (t = dict_str_vector_dict_str_str_iter(&dict);
+         t.key;
+         t = dict_str_vector_dict_str_str_next(&dict, t))
+    {
+        deftext = file_read(*t.key, NULL);
+        if (!deftext) {
+            fprintf(stderr, "Could not open %s\n", *t.key);
+            continue;
+        }
+
+        // for each replacement dict
+        for (d = vector_dict_str_str_iter(*t.value);
+             d;
+             d = vector_dict_str_str_next(*t.value, d))
+        {
+            deftextcopy = strdup(deftext);
+            if (!deftextcopy) {
+                fprintf(stderr, "Out of memory\n");
+                return 1;
+            }
+
+            // for each replacement
+            for (kv = dict_str_str_iter(*d);
+                 kv.key;
+                 kv = dict_str_str_next(*d, kv))
+            {
+                if (streplace(&deftextcopy, *kv.key, *kv.value) != 0) {
+                    fprintf(stderr, "Total failure to replace in %s\n", *t.key);
+                    goto skip;
+                }
+            }
+
+            (void)fwrite(deftextcopy, 1, strlen(deftextcopy), out);
+        skip:
+            free(deftextcopy);
+        }
+        free(deftext);
+    }
+
+    json_close(&json);
+    fclose(out);
+    dict_str_vector_dict_str_str_deinit(&dict);
     return 0;
 }
 
@@ -88,6 +145,16 @@ static int json_open(struct Json *json, const char *filename)
     return 0;
 }
 
+static void json_close(struct Json *json)
+{
+    assert(json);
+    assert(json->textheap);
+    assert(json->tokens);
+
+    free(json->textheap);
+    free(json->tokens);
+}
+
 static int json_dump(struct Json *json, struct DictStrVectorDictStrStr *out)
 {
     enum XState {
@@ -102,11 +169,8 @@ static int json_dump(struct Json *json, struct DictStrVectorDictStrStr *out)
     const char *text = json->textheap;
     int i;
     int count;
-    char *tmp_curfile;
-    char *tmp_key;
-    //char *tmp_value;
+    char *def_file;
     struct VectorDictStrStr *tmp_vec;
-    struct DictStrStr *tmp_inner;
 
     for (i = 0; i < json->numtoks; i++) {
         t = &json->tokens[i];
@@ -123,26 +187,28 @@ static int json_dump(struct Json *json, struct DictStrVectorDictStrStr *out)
             if (t->type != JSMN_STRING) {
                 json_abort(text, t);
             }
-            tmp_curfile = strndup(text + t->start, t->end - t->start);
-            assert(tmp_curfile);
+            def_file = (char *)text + t->start;
+            def_file[t->end - t->start] = 0;
             state = XLIST;
             break;
         case XLIST:
             if (t->type != JSMN_ARRAY) {
                 json_abort(text, t);
             }
-            tmp_inner = vector_dict_str_str_new();
-            i = json_dump_file(json, i, tmp_inner);
+            tmp_vec = vector_dict_str_str_new();
+            i = json_dump_file(json, i, tmp_vec);
             if (i < 0) {
                 return 1;
             }
-            dict_str_vector_dict_str_str_set(out, tmp_curfile, tmp_inner);
+            dict_str_vector_dict_str_str_set(out, def_file, tmp_vec);
             count--;
             if (count == 0) {
                 state = XDONE;
                 goto out;
             }
             state = XKEY;
+            break;
+        case XDONE:
             break;
         }
     }
@@ -173,14 +239,14 @@ static int json_dump_file(struct Json *json, int i, struct VectorDictStrStr *out
         t = &json->tokens[i];
         switch (state) {
         case XBEGIN:
-            if (t->type != JSMN_OBJECT) {
+            if (t->type != JSMN_ARRAY) {
                 json_abort(text, t);
             }
             state = XOBJECT;
             count = t->size;
             break;
         case XOBJECT:
-            if (t->type != JSMN_STRING) {
+            if (t->type != JSMN_OBJECT) {
                 json_abort(text, t);
             }
             tmp_dict = dict_str_str_new();
@@ -196,6 +262,8 @@ static int json_dump_file(struct Json *json, int i, struct VectorDictStrStr *out
             }
             state = XOBJECT;
             break;
+        case XDONE:
+            break;
         }
     }
 
@@ -204,7 +272,7 @@ out:
         fprintf(stderr, "Unexpected EOF\n");
         return -1;
     }
-    return 0;
+    return i;
 }
 
 static int json_dump_file_dict(struct Json *json, int i, struct DictStrStr *out)
@@ -224,11 +292,48 @@ static int json_dump_file_dict(struct Json *json, int i, struct DictStrStr *out)
     char *value;
 
     for ( ; i < json->numtoks; i++) {
+        t = &json->tokens[i];
         switch (state) {
         case XBEGIN:
-            
+            if (t->type != JSMN_OBJECT) {
+                json_abort(text, t);
+            }
+            state = XKEY;
+            count = t->size;
+            break;
+        case XKEY:
+            if (t->type != JSMN_STRING) {
+                json_abort(text, t);
+            }
+            key = (char *)text + t->start;
+            key[t->end - t->start] = 0;
+            state = XVALUE;
+            break;
+        case XVALUE:
+            if (t->type != JSMN_STRING) {
+                json_abort(text, t);
+            }
+            value = (char *)text + t->start;
+            value[t->end - t->start] = 0;
+            dict_str_str_set(out, key, value);
+            count--;
+            if (count == 0) {
+                state = XDONE;
+                goto out;
+            }
+            state = XKEY;
+            break;
+        case XDONE:
+            break;
         }
     }
+
+out:
+    if (state != XDONE) {
+        fprintf(stderr, "Unexpected EOF\n");
+        return -1;
+    }
+    return i;
 }
 
 static void json_abort(const char *text, const jsmntok_t *t)
@@ -239,6 +344,21 @@ static void json_abort(const char *text, const jsmntok_t *t)
 
 static int get_options(int argc, char *argv[], struct Options *opts)
 {
+    if (arg_check(argc, argv, "-h", "--help")) {
+        fprintf(stderr,
+            "def -- JSON defined text replacement\n\n"
+            "Options\n"
+            "\t-f, --file; required, specify JSON definition\n"
+            "\t-o, --out; required, specify output file\n"
+            "\t-h, --help; optional, view this help\n\n"
+            "JSON Format:\n"
+            "\t{ \"filename1\": [ { \"old-value1\": \"new-value1\", ...}, \n"
+            "\t                 { \"old-value1\": \"diff-value1\", ... }, ...],\n"
+            "\t  \"filename2\": ...\n"
+        );
+        exit(0);
+    }
+
     opts->ifile = arg_get(argc, argv, "-f", "--file");
     if (!opts->ifile) {
         fprintf(stderr, "Missing --file\n");
@@ -254,7 +374,6 @@ static int get_options(int argc, char *argv[], struct Options *opts)
     return 0;
 }
 
-#if 0
 static int arg_check(int argc, char *argv[], const char *da, const char *ddarg)
 {
     int i;
@@ -265,7 +384,6 @@ static int arg_check(int argc, char *argv[], const char *da, const char *ddarg)
     }
     return 0;
 }
-#endif
 
 static char *arg_get(int argc, char *argv[], const char *da, const char *ddarg)
 {
@@ -332,13 +450,64 @@ char *file_read(const char *fname, size_t *size)
     return buf;
 }
 
-char *strndup(const char *str, size_t n)
+int streplace(char **s, const char *old, const char *new)
 {
-    size_t size = strlen(str);
-    size = size > n ? n : size;
-    char *buf = malloc(size + 1);
-    if (!buf) return NULL;
-    (void)memcpy(buf, str, size);
-    buf[size] = 0; // manual NUL
-    return buf;
+    static char *last_s = NULL;
+    char *rp;
+    char *result;
+    char *sub;
+    char *p;
+    static size_t len;
+    size_t old_len;
+    size_t new_len;
+    int tmp;
+
+    // input failure
+    if (s == NULL || *s == NULL || old == NULL || new == NULL) {
+        return 1;
+    }
+
+    p = *s;
+    if (last_s != *s) {
+        len = strlen(*s);
+        last_s = *s;
+    }
+    old_len = strlen(old);
+    new_len = strlen(new);
+
+    /* no replacements found */
+    if ((sub = strstr(p, old)) == NULL) {
+        return 0;
+    }
+
+    /* at least one replacement found */
+    do {
+        len = len - old_len + new_len;
+        p = (char *)((size_t)sub + old_len);
+    } while ((sub = strstr(p, old)));
+    
+    rp = result = calloc(len + 1, sizeof(char));
+    if (!result) {
+        return 1;
+    }
+
+    /* re-add the bytes back into the result */
+    for (p = *s; *p != '\0'; p++) {
+        // starts with
+        if (strncmp(p, old, old_len) == 0) {
+            // safe because we already checked len
+            tmp = sprintf(rp, "%s", new);
+            rp += tmp;
+            p += old_len - 1;
+        }
+        else {
+            *rp = *p;
+            rp++;
+        }
+    }
+
+    free(*s);
+    *s = result;
+
+    return 0;
 }
