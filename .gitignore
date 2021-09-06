@@ -4,9 +4,12 @@
 .tmp.*
 a.exe
 a.out
+test.out
+test.exe
 gen.*
 collections.h
 DOCS.md
 *.swp
 def
 def.exe
+build

@@ -1,30 +1,52 @@
 CC=gcc
-CFLAGS=\
+CFLAGS= \
 	-Wall \
 	-Wextra
-TARGET=a.out
 
-FILES=main.c
+TEST_C = main.c
+TEST_PRE_T = test
 
-all: $(TARGET)
+DEF_C = def.c
+DEF_PRE_T = def
 
-.PHONY: $(TARGET) clean
+ifeq ($(OS),Windows_NT)
+	TEST_T = $(TEST_PRE_T).exe
+	DEF_T = $(DEF_PRE_T).exe
+else
+	TEST_T = $(TEST_PRE_T).out
+	DEF_T = $(DEF_PRE_T)
+endif
 
-bootstrap:
-	$(CC) -o def def.c $(CFLAGS) -O2
-bootstrap-debug:
-	$(CC) -o def def.c $(CFLAGS) -ggdb
+.PHONY: clean
 
-generator: bootstrap
-	./def -f collections.json -o collections.h
+# 'make release' to create 'def' for generating definitions
 
-$(TARGET): generator
-	$(CC) -o $@ $(FILES) $(CFLAGS) -O2
-debug: generator
-	$(CC) -o $@ $(FILES) $(CFLAGS) -ggdb
+all: debug
+
+release: CFLAGS += -O2
+release: build
+
+debug: CFLAGS += -ggdb
+debug: build
+
+build:
+	$(CC) -o $(DEF_T) $(DEF_C) $(CFLAGS)
+	touch build
 
 clean:
-	rm -f a.out a.exe gen.* collections.h def
+	rm -f collections.h $(TEST_T) $(DEF_T) DOCS.md build
+
+# Test stuff
+
+bootstrap: release
+	./$(DEF_T) -f collections.json -o collections.h
+
+test: $(TEST_T)
+
+$(TEST_T): bootstrap
+	$(CC) -o $@ $(TEST_C) $(CFLAGS) -O2
+
+# Misc
 
 docs:
 	python docs.py

@@ -40,6 +40,10 @@ static int arg_check(int argc, char *argv[], const char *da, const char *ddarg);
 static char *arg_get(int argc, char *argv[], const char *da, const char *ddarg);
 char *file_read(const char *fname, size_t *size);
 int streplace(char **s, const char *old, const char *new);
+#ifdef _WIN32
+// Hey Windows, why do you treat \r as \n??? --Cuz we want extra empty lines in our file IO!
+void fputs_no_CR(char *deftextcopy, FILE *out);
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -105,7 +109,11 @@ int main(int argc, char *argv[])
                 }
             }
 
-            (void)fwrite(deftextcopy, 1, strlen(deftextcopy), out);
+#ifdef _WIN32
+            fputs_no_CR(deftextcopy, out);
+#else
+            fputs(deftextcopy, out);
+#endif
             free(deftextcopy);
         }
         free(deftext);
@@ -509,4 +517,31 @@ int streplace(char **s, const char *old, const char *new)
     *s = result;
 
     return 0;
+}
+
+void fputs_no_CR(char *deftextcopy, FILE *out)
+{
+    char *p;
+    char *begin = deftextcopy;
+
+    p = strchr(deftextcopy, '\r');
+    if (p == NULL) {
+        fputs(deftextcopy, out);
+        return;
+    }
+
+    while (1) {
+        if (p == NULL) {
+            break;
+        }
+        fwrite(begin, 1, (size_t)(p - begin), out);
+        begin = p + 1; // skip over crlf
+
+        if (begin[0] == 0) {
+            break;
+        }
+        p = strchr(begin, '\r');
+    }
+
+    fputs(begin, out);
 }
