@@ -41,6 +41,9 @@ clean:
 bootstrap: release
 	./$(DEF_T) -f collections.json -o collections.h
 
+defh: release
+	./$(DEF_T) -f def.json -o def.h
+
 test: $(TEST_T)
 
 $(TEST_T): bootstrap

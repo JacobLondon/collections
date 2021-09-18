@@ -33,8 +33,8 @@ struct VectorArgs$Nn {
 
 DEF_PROTO struct Vector$Nn _vector_$nn_init(struct VectorArgs$Nn args);         // initialize a stack vector
 DEF_PROTO struct Vector$Nn *_vector_$nn_new(struct VectorArgs$Nn args);         // initialize a heap vector
-#define vector_$nn_init(...) _vector_$nn_init((struct VectorArgs$Nn){cap: 1, __VA_ARGS__})
-#define vector_$nn_new(...) _vector_$nn_new((struct VectorArgs$Nn){cap: 1, __VA_ARGS__})
+#define vector_$nn_init(...) _vector_$nn_init((struct VectorArgs$Nn){.cap=1, __VA_ARGS__})
+#define vector_$nn_new(...) _vector_$nn_new((struct VectorArgs$Nn){.cap=1, __VA_ARGS__})
 DEF_PROTO void vector_$nn_deinit(struct Vector$Nn *v);                          // deinitialize a stack vector
 DEF_PROTO void vector_$nn_free(struct Vector$Nn *v);                            // delete a heap vector
 DEF_PROTO void vector_$nn_reserve(struct Vector$Nn *v, size_t cap);             // set reserve capacity

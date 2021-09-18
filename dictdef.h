@@ -62,9 +62,9 @@ struct DictPair$Tt$Vv {
 typedef size_t (* Dict$Tt$VvHashFunc)($K key, size_t bias, size_t max);
 
 DEF_PROTO struct Dict$Tt$Vv _dict_$tt_$vv_init(struct DictArgs$Tt$Vv args);     // create a stack dict
-#define dict_$tt_$vv_init(...) _dict_$tt_$vv_init((struct DictArgs$Tt$Vv){cap: 6, __VA_ARGS__})
+#define dict_$tt_$vv_init(...) _dict_$tt_$vv_init((struct DictArgs$Tt$Vv){.cap=6, __VA_ARGS__})
 DEF_PROTO struct Dict$Tt$Vv *_dict_$tt_$vv_new(struct DictArgs$Tt$Vv args);     // create a heap dict
-#define dict_$tt_$vv_new(...) _dict_$tt_$vv_new((struct DictArgs$Tt$Vv){cap: 6, __VA_ARGS__})
+#define dict_$tt_$vv_new(...) _dict_$tt_$vv_new((struct DictArgs$Tt$Vv){.cap=6, __VA_ARGS__})
 DEF_PROTO void dict_$tt_$vv_deinit(struct Dict$Tt$Vv *d);                       // clean up a stack dict
 DEF_PROTO void dict_$tt_$vv_free(struct Dict$Tt$Vv *d);                         // free a heap dict
 DEF_PROTO void dict_$tt_$vv_reserve(struct Dict$Tt$Vv *d, size_t cap);          // cap must be larger, can check by '.cap == ?'

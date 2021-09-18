@@ -13,3 +13,4 @@ DOCS.md
 def
 def.exe
 build
+*.dSYM

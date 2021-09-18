@@ -62,9 +62,9 @@ struct DictPairStrStr {
 typedef size_t (* DictStrStrHashFunc)(const char * key, size_t bias, size_t max);
 
 DEF_PROTO struct DictStrStr _dict_str_str_init(struct DictArgsStrStr args);     // create a stack dict
-#define dict_str_str_init(...) _dict_str_str_init((struct DictArgsStrStr){cap: 6, __VA_ARGS__})
+#define dict_str_str_init(...) _dict_str_str_init((struct DictArgsStrStr){.cap=6, __VA_ARGS__})
 DEF_PROTO struct DictStrStr *_dict_str_str_new(struct DictArgsStrStr args);     // create a heap dict
-#define dict_str_str_new(...) _dict_str_str_new((struct DictArgsStrStr){cap: 6, __VA_ARGS__})
+#define dict_str_str_new(...) _dict_str_str_new((struct DictArgsStrStr){.cap=6, __VA_ARGS__})
 DEF_PROTO void dict_str_str_deinit(struct DictStrStr *d);                       // clean up a stack dict
 DEF_PROTO void dict_str_str_free(struct DictStrStr *d);                         // free a heap dict
 DEF_PROTO void dict_str_str_reserve(struct DictStrStr *d, size_t cap);          // cap must be larger, can check by '.cap == ?'
@@ -354,9 +354,9 @@ struct DictPairStrVectorDictStrStr {
 typedef size_t (* DictStrVectorDictStrStrHashFunc)(const char * key, size_t bias, size_t max);
 
 DEF_PROTO struct DictStrVectorDictStrStr _dict_str_vector_dict_str_str_init(struct DictArgsStrVectorDictStrStr args);     // create a stack dict
-#define dict_str_vector_dict_str_str_init(...) _dict_str_vector_dict_str_str_init((struct DictArgsStrVectorDictStrStr){cap: 6, __VA_ARGS__})
+#define dict_str_vector_dict_str_str_init(...) _dict_str_vector_dict_str_str_init((struct DictArgsStrVectorDictStrStr){.cap=6, __VA_ARGS__})
 DEF_PROTO struct DictStrVectorDictStrStr *_dict_str_vector_dict_str_str_new(struct DictArgsStrVectorDictStrStr args);     // create a heap dict
-#define dict_str_vector_dict_str_str_new(...) _dict_str_vector_dict_str_str_new((struct DictArgsStrVectorDictStrStr){cap: 6, __VA_ARGS__})
+#define dict_str_vector_dict_str_str_new(...) _dict_str_vector_dict_str_str_new((struct DictArgsStrVectorDictStrStr){.cap=6, __VA_ARGS__})
 DEF_PROTO void dict_str_vector_dict_str_str_deinit(struct DictStrVectorDictStrStr *d);                       // clean up a stack dict
 DEF_PROTO void dict_str_vector_dict_str_str_free(struct DictStrVectorDictStrStr *d);                         // free a heap dict
 DEF_PROTO void dict_str_vector_dict_str_str_reserve(struct DictStrVectorDictStrStr *d, size_t cap);          // cap must be larger, can check by '.cap == ?'
@@ -617,8 +617,8 @@ struct VectorArgsDictStrStr {
 
 DEF_PROTO struct VectorDictStrStr _vector_dict_str_str_init(struct VectorArgsDictStrStr args);         // initialize a stack vector
 DEF_PROTO struct VectorDictStrStr *_vector_dict_str_str_new(struct VectorArgsDictStrStr args);         // initialize a heap vector
-#define vector_dict_str_str_init(...) _vector_dict_str_str_init((struct VectorArgsDictStrStr){cap: 1, __VA_ARGS__})
-#define vector_dict_str_str_new(...) _vector_dict_str_str_new((struct VectorArgsDictStrStr){cap: 1, __VA_ARGS__})
+#define vector_dict_str_str_init(...) _vector_dict_str_str_init((struct VectorArgsDictStrStr){.cap=1, __VA_ARGS__})
+#define vector_dict_str_str_new(...) _vector_dict_str_str_new((struct VectorArgsDictStrStr){.cap=1, __VA_ARGS__})
 DEF_PROTO void vector_dict_str_str_deinit(struct VectorDictStrStr *v);                          // deinitialize a stack vector
 DEF_PROTO void vector_dict_str_str_free(struct VectorDictStrStr *v);                            // delete a heap vector
 DEF_PROTO void vector_dict_str_str_reserve(struct VectorDictStrStr *v, size_t cap);             // set reserve capacity
