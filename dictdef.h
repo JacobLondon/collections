@@ -24,7 +24,7 @@
 #ifndef DEF_DICTDEF_$TT_$VV_H
 #define DEF_DICTDEF_$TT_$VV_H
 
-#include "shared.h"
+#define DEF_PROTO
 #include <stddef.h>
 
 #if 0

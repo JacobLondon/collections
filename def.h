@@ -24,7 +24,7 @@
 #ifndef DEF_DICTDEF_STR_STR_H
 #define DEF_DICTDEF_STR_STR_H
 
-#include "shared.h"
+#define DEF_PROTO
 #include <stddef.h>
 
 #if 0
@@ -316,7 +316,7 @@ void dict_str_str_sethash(DictStrStrHashFunc hash)
 #ifndef DEF_DICTDEF_STR_VECTOR_DICT_STR_STR_H
 #define DEF_DICTDEF_STR_VECTOR_DICT_STR_STR_H
 
-#include "shared.h"
+#define DEF_PROTO
 #include <stddef.h>
 
 #if 0
@@ -592,7 +592,7 @@ void dict_str_vector_dict_str_str_sethash(DictStrVectorDictStrStrHashFunc hash)
 #ifndef DEF_VECTORDEF_DICT_STR_STR_H
 #define DEF_VECTORDEF_DICT_STR_STR_H
 
-#include "shared.h"
+#define DEF_PROTO
 #include <stddef.h>
 
 #if 0

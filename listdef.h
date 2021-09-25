@@ -8,7 +8,7 @@
 #ifndef DEF_LISTDEF_$NN_H
 #define DEF_LISTDEF_$NN_H
 
-#include "shared.h"
+#define DEF_PROTO
 #include <stddef.h>
 
 #if 0
