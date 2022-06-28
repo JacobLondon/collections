@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "jsmn.h"
+#include "streplace.h"
 // generated, make sure protos are above, defs are below
 #include "def.h"
 #define DEF_DICT_STR_STR
@@ -39,7 +40,6 @@ static int get_options(int argc, char *argv[], struct Options *opts);
 static int arg_check(int argc, char *argv[], const char *da, const char *ddarg);
 static char *arg_get(int argc, char *argv[], const char *da, const char *ddarg);
 char *file_read(const char *fname, size_t *size);
-int streplace(char **s, const char *old, const char *new);
 #ifdef _WIN32
 // Hey Windows, why do you treat \r as \n??? --Cuz we want extra empty lines in our file IO!
 void fputs_no_CR(char *deftextcopy, FILE *out);
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
                  kv.key;
                  kv = dict_str_str_next(*d, kv))
             {
-                if (streplace(&deftextcopy, *kv.key, *kv.value) != 0) {
+                if (streplace_cache(&deftextcopy, *kv.key, *kv.value) != 0) {
                     fprintf(stderr, "Total failure to replace in %s\n", *t.key);
                     return 1;
                 }
@@ -455,68 +455,6 @@ char *file_read(const char *fname, size_t *size)
 
     fclose(f);
     return buf;
-}
-
-int streplace(char **s, const char *old, const char *new)
-{
-    static char *last_s = NULL;
-    char *rp;
-    char *result;
-    char *sub;
-    char *p;
-    static size_t len;
-    size_t old_len;
-    size_t new_len;
-    int tmp;
-
-    // input failure
-    if (s == NULL || *s == NULL || old == NULL || new == NULL) {
-        return 1;
-    }
-
-    p = *s;
-    if (last_s != *s) {
-        len = strlen(*s);
-        last_s = *s;
-    }
-    old_len = strlen(old);
-    new_len = strlen(new);
-
-    /* no replacements found */
-    if ((sub = strstr(p, old)) == NULL) {
-        return 0;
-    }
-
-    /* at least one replacement found */
-    do {
-        len = len - old_len + new_len;
-        p = (char *)((size_t)sub + old_len);
-    } while ((sub = strstr(p, old)));
-    
-    rp = result = calloc(len + 1, sizeof(char));
-    if (!result) {
-        return 1;
-    }
-
-    /* re-add the bytes back into the result */
-    for (p = *s; *p != '\0'; p++) {
-        // starts with
-        if (strncmp(p, old, old_len) == 0) {
-            // safe because we already checked len
-            tmp = sprintf(rp, "%s", new);
-            rp += tmp;
-            p += old_len - 1;
-        }
-        else {
-            *rp = *p;
-            rp++;
-        }
-    }
-
-    free(*s);
-    *s = result;
-
-    return 0;
 }
 
 void fputs_no_CR(char *deftextcopy, FILE *out)

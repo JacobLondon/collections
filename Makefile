@@ -6,7 +6,7 @@ CFLAGS= \
 TEST_C = main.c
 TEST_PRE_T = test
 
-DEF_C = def.c
+DEF_C = def.c streplace.c
 DEF_PRE_T = def
 
 ifeq ($(OS),Windows_NT)
@@ -26,7 +26,7 @@ all: debug
 release: CFLAGS += -O2
 release: build
 
-debug: CFLAGS += -ggdb
+debug: CFLAGS += -ggdb -O0
 debug: build
 
 build:
@@ -38,7 +38,7 @@ clean:
 
 # Test stuff
 
-bootstrap: release
+bootstrap: debug
 	./$(DEF_T) -f collections.json -o collections.h
 
 defh: release
